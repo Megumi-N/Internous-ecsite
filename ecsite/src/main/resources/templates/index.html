@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>ECサイト</title>
+<link href="/css/style.css" th:href="@{/css/style.css}" rel="stylesheet" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!--履歴はモーダルダイアログで表示するためjquery-uiというライブラリを使用-->
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+<script src="/js/common.js" th:src="@{/js/common.js}"></script>
+
+<script>
+/*追加されたカート情報を一覧形式でメモリ上に保持しておくための変数を定義*/
+let cartList = [];
+
+/*アロー関数(ラムダ式)で記述。意味は$(function(){});と同様で、ページオンロード時のイベントリスナ*/
+$(() => {
+	$('#LoginForm').on('submit', login);	/*loginFormを持つid要素でsubmitイベントが発生した際loginを呼び出すようリスナー登録*/
+/*カートに入れる機能を実装。今回はカートに入れた段階でDBにデータを登録しないのでフロントエンドで完結*/
+	$('.cartBtn').on('click', addCart);		/*cartBtnのclassを持つ要素にclickイベントが発生した際、addCartを呼び出すようリスナー登録*/
+	$('#buyBtn').on('click', buy);		/*購入処理のイベントリスナ登録*/
+	$('#historyBtn').on('click', showHistory);	/*historyBtnのIDを持つ要素にclickイベントのリスナを登録*/
+
+/*jquery-uiのモーダルダイアログを設定*/
+	$('#history').dialog({
+		autoOpen: false, //呼ばれるまで非表示
+		width: 550,
+		modal: true,　//モーダル表示
+		buttons: [　//ボタン
+			{
+				text: 'OK',
+				click: function(){
+					$(this).dialog('close');
+				}
+			},
+		]
+	});
+});
+</script>
+
+</head>
+<body>
+	<header>
+		<h1>My EC Site</h1>
+		<div>
+			<form name="LoginForm" id="LoginForm" method="post" action="#">
+				User name:<input type="text" name="userName" /> 
+				Password :<input type="password" name="password" />
+				<button type="submit">Login</button>
+			</form>
+			<br /> 
+			<span id="welcome"> -- ようこそ！ ゲストさん</span> 
+			<input type="hidden" id="hiddenUserId" value="0" />
+		</div>
+	</header>
+	<table>
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>商品名</th>
+				<th>価格</th>
+				<th>注文数</th>
+				<th>カート</th>
+			</tr>
+		</thead>
+		<tbody>
+<!--thymeleafを使用したループ処理。Controllerでmodelオブジェクトに追加されたキーで取得した値(今回はList)をループさせている-->
+			<tr th:each="item: ${goods}">
+				<td th:text="${item.id}" />
+				<td th:text="${item.goodsName}" />
+				<td th:text="${item.price}" />
+				<td><input type="number" class="count" value="0" /></td>
+				<td><button class="cartBtn">カートに入れる</button></td>
+			</tr>
+		</tbody>
+	</table>
+
+	<fieldset>
+		<legend>カート</legend>
+		<table id="cart">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>商品名</th>
+					<th>価格</th>
+					<th>注文数</th>
+					<th>カート</th>
+				</tr>
+			</thead>
+
+			<tbody>
+			
+<!--ajaxを使い、Rest手法で動的にテーブル行を作成-->
+
+			</tbody>
+		</table>
+		<button id="buyBtn">購入</button>
+		<button id="historyBtn">履歴</button>
+	</fieldset>
+
+	<div id="history" title="購入履歴" style="display:none;">
+		<table id="historyTable">
+			<thead>
+				<tr>
+					<th>商品名</th>
+					<th>注文数</th>
+					<th>購入日時</th>
+				</tr>
+			</thead>
+			<tbody>
+			
+<!--初期表示に非表示になるようスタイル定義。履歴ボタンを押下時に表示する使用-->			
+			
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>
